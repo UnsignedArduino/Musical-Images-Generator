@@ -1,9 +1,9 @@
 from argparse import ArgumentParser
 from pathlib import Path
+from math import ceil
+from typing import Iterable
 
 from mido import MidiFile
-from typing import Iterable
-from itertools import groupby
 
 parser = ArgumentParser(description="Turn a MIDI file into MakeCode Arcade "
                                     "images compatible with the "
@@ -27,19 +27,42 @@ if out_path is None:
     out_path = in_path.parent / (in_path.stem + ".txt")
 
 
+def note_num_to_name(num: int) -> str:
+    # https://stackoverflow.com/a/54546263/10291933
+    notes = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
+    octave = ceil(num / 12)
+    name = notes[num % 12]
+    return name + str(octave)
+
+
 def chord_to_col(notes: Iterable[int]) -> list[str]:
     column = []
     for row in range(88):
-        column.append("f" if row in notes else ".")
+        if "#" in note_num_to_name(row):
+            column.append("f" if row in notes else ".")
+        else:
+            column.append("1" if row in notes else ".")
     return column
 
 
 def time_to_col(time: int) -> list[str]:
+    # Generates every color in Arcade palette except transparent, white and
+    # black
+    colors = [str(hex(c)[2:]) for c in range(2, 15)]
+    times = range(50, 14 * 50, 50)
+    # Gets the color to to indicate the time, so red is less then 50 ms,
+    # pink is less then 100 ms, orange is less then 150 ms, etc
+    # Brown is over 600 ms
+    color = colors[-1]
+    for c, t in zip(colors, times):
+        if time < t:
+            color = c
+            break
+    column = []
     # Gets binary representation of time and splits it up and formats it
     # into Arcade-style image values ("1" is white, "." is transparent)
-    # >>> ["1" if b == "1" else "." for b in bin(4)[2:]]
-    # ['1', '.', '.']
-    column = ["1" if b == "1" else "." for b in bin(time)[2:]]
+    for bit in bin(time)[2:]:
+        column.append(color if bit == "1" else ".")
     column.reverse()
     column += "." * (88 - len(column))
     return column
