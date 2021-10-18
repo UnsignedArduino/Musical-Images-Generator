@@ -53,9 +53,9 @@ notes_to_press = []
 for msg in mid:
     if msg.type != "note_on":
         continue
-    if msg.time == 0:
+    if msg.velocity > 0:
         notes_to_press.append(msg.note - 21)
-    else:
+    elif msg.time > 0:
         columns.append(chord_to_col(notes_to_press))
         # The times are in seconds but we need milliseconds
         columns.append(time_to_col(round(msg.time * 1000)))
@@ -71,8 +71,10 @@ def chunk(lst, n):
 
 # Split all columns into lists of 512 columns (512 is max Arcade image width)
 all_columns = chunk(columns, 512)
+count = 0
 
 for columns in all_columns:
+    count += 1
     output += "img`\n"
     rows = zip(*columns)
     for row in rows:
@@ -82,5 +84,6 @@ for columns in all_columns:
 if to_stdout:
     print(output)
 else:
+    print(f"Generated {count} image(s)")
     out_path.write_text(output)
     print(f"Output destination file is {out_path}")
