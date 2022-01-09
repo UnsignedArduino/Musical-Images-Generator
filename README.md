@@ -9,9 +9,10 @@ for MakeCode Arcade!
 ### Install via binary
 
 1. Download an executable (only have binaries for 64-bit Windows currently) 
-   for your platform. 
-2. Open a terminal at where you downloaded the binary.
-3. Instead of running `python main.py <arguments>` run the binary instead. 
+   for your platform from the 
+   [releases page](https://github.com/UnsignedArduino/Musical-Images-Generator/releases). 
+3. Open a terminal at where you downloaded the binary.
+4. Instead of running `python main.py <arguments>` run the binary instead. 
    (If the binary is named `musical-images-generator.exe` then you can just run 
    `musical-images-generator <arguments>`)
 

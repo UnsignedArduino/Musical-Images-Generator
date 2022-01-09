@@ -1,1 +1,4 @@
 music
+*.spec
+build
+dist
