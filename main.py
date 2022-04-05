@@ -71,17 +71,22 @@ def time_to_col(time: int) -> list[str]:
 mid = MidiFile(in_path)
 
 columns = []
+syncs_to_keep = []
 notes_to_press = []
 
 for msg in mid:
     if msg.type != "note_on":
         continue
     if msg.velocity > 0:
-        notes_to_press.append(msg.note - 21)
+        if msg.velocity > 1:
+            notes_to_press.append(msg.note - 21)
+        else:
+            syncs_to_keep.append(msg.note - 21)
     elif msg.time > 0:
         columns.append(chord_to_col(notes_to_press))
         # The times are in seconds but we need milliseconds
         columns.append(time_to_col(round(msg.time * 1000)))
+        syncs_to_keep = []
         notes_to_press = []
 
 output = ""
